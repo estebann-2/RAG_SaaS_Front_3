@@ -44,59 +44,6 @@ def home(request):
 
 
 @login_required
-def upload_document(request):
-    if request.method == "POST" and request.FILES.get("document"):
-        uploaded_file = request.FILES["document"]
-
-        # Extract the filename (without extension)
-        document_name = os.path.splitext(uploaded_file.name)[0]
-
-        # Ensure a conversation is created using the document title
-        conversation = Conversation.objects.create(user=request.user, title=document_name)
-
-        # Save the uploaded document and link it to the conversation
-        document = Document.objects.create(
-            user=request.user,
-            file=uploaded_file,
-            title=document_name,  # Store the document name
-            conversation=conversation  # Link document to conversation
-        )
-
-        # Process document for chunking & embedding (async recommended)
-        process_document(document)
-
-        # Create a system message to confirm the document upload
-        Message.objects.create(
-            conversation=conversation,
-            sender=request.user,  # Keeping sender as user for now
-            text=f"📂 Documento '{document_name}' procesado y listo para consultas."
-        )
-
-        return JsonResponse({
-            "success": True,
-            "response": f"Documento '{document_name}' subido y procesado.",
-            "conversation_id": conversation.id
-        })
-
-    return JsonResponse({"success": False, "error": "No se proporcionó un archivo."})
-
-
-
-@login_required
-def conversation_history(request):
-    conversations = Conversation.objects.filter(user=request.user).order_by("-created_at")
-
-    print(f"User {request.user.username} is viewing conversation history.")
-    print(f"Found {conversations.count()} conversations for this user.")
-
-    for convo in conversations:
-        print(f"ID: {convo.id}, Title: {convo.title}, Created: {convo.created_at}")
-
-    return render(request, 'rag_app/conversation_history.html', {'conversations': conversations})
-
-
-
-@login_required
 def start_conversation(request):
     if request.method == "POST":
         title = request.POST.get("title", "Nueva Conversación")
@@ -128,46 +75,102 @@ def conversation_detail(request, conversation_id):
         "form": form
     })
 
-# Send a Message and Get Response from LLM
+
+import requests
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
+# Configuration
+API_BASE_URL = 'http://34.16.64.68:8000/api'
+
+def get_headers(request):
+    """Helper function to get authentication headers"""
+    return {
+        'Authorization': f'Token {request.user.auth_token.key}'
+    }
+
+@login_required
+def upload_document(request):
+    if request.method == "POST" and request.FILES.get("document"):
+        uploaded_file = request.FILES["document"]
+        
+        # Prepare the request
+        files = {'document': uploaded_file}
+        data = {'user': request.user.id}
+        
+        try:
+            response = requests.post(
+                f'{API_BASE_URL}/api_upload/',
+                files=files,
+                data=data,
+                headers=get_headers(request)
+            )
+            
+            if response.status_code == 201:
+                return JsonResponse(response.json())
+            return JsonResponse({'error': 'Upload failed'}, status=response.status_code)
+            
+        except requests.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({"error": "No file provided"}, status=400)
+
+@login_required
+def conversation_history(request):
+    try:
+        response = requests.get(
+            f'{API_BASE_URL}/api_conversation/history',
+            params={'user': request.user.id},
+            headers=get_headers(request)
+        )
+        
+        if response.status_code == 200:
+            conversations = response.json()
+            return render(request, 'rag_app/conversation_history.html', {
+                'conversations': conversations
+            })
+        
+        messages.error(request, "Failed to fetch conversation history")
+        return redirect('home')
+        
+    except requests.RequestException as e:
+        messages.error(request, f"Error: {str(e)}")
+        return redirect('home')
+
 @login_required
 def send_message(request, conversation_id):
-    conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
-
     if request.method == "POST":
         form = MessageForm(request.POST)
         if form.is_valid():
-            # Save user message
-            user_message = form.save(commit=False)
-            user_message.conversation = conversation
-            user_message.sender = request.user
-            user_message.role = "user"
-            user_message.save()
-
-
-            # Retrieve relevant chunks
-            relevant_chunks = retrieve_relevant_chunks(user_message.text, conversation, top_k=3)
-
-            # Log retrieved chunks
-            chunk_info = "\n".join([f"Chunk {c['chunk_id']} from {c['document']}: {c['content'][:50]}..." for c in relevant_chunks])
-            logging.info(f"🔍 Relevant Chunks Used:\n{chunk_info}")
-
-            # Format prompt for LLM
-            context_text = "\n\n".join([f"Document: {c['document']}\nChunk {c['chunk_id']}:\n{c['content']}" for c in relevant_chunks])
-            prompt = f"Context:\n{context_text}\n\nUser Query: {user_message.text}"
-
-            # Query the LLM
-            llm_response = query_llm(prompt)
-
+            message_text = form.cleaned_data['text']
             
+            payload = {
+                'message': message_text,
+                'user': str(request.user.id),
+                'conversation': str(conversation_id)
+            }
+            
+            try:
+                response = requests.post(
+                    f'{API_BASE_URL}/api_conversation/send/',
+                    json=payload,
+                    headers={
+                        **get_headers(request),
+                        'Content-Type': 'application/json'
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    return JsonResponse(data)
+                
+                return JsonResponse(
+                    {'error': 'Failed to send message'}, 
+                    status=response.status_code
+                )
+                
+            except requests.RequestException as e:
+                return JsonResponse({'error': str(e)}, status=500)
 
-            # Save LLM response
-            Message.objects.create(
-                conversation=conversation,
-                sender=request.user,  # Keeping sender for structure, but should be an assistant bot user
-                role="assistant",
-                text=llm_response
-            )
-
-            return redirect("conversation_detail", conversation_id=conversation.id)
-
-    return redirect("conversation_detail", conversation_id=conversation.id)
+    return JsonResponse({'error': 'Invalid request'}, status=400)

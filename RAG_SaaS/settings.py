@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-nf&e1vvw_dmvp%9ky+j#g+eryuo*($db=^4(k%)q(d4sgxk4+q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['34.60.49.219', 'localhost', '127.0.0.1','34.57.126.1']
+ALLOWED_HOSTS = ['*']
 
 
 
@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rag_app',   # Frontend app
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 
@@ -57,23 +60,23 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 
-CORS_ALLOW_CREDENTIALS = True  # Enable credentials
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://34.60.49.219:8000",
-    "http://34.57.126.1:8000"
-]
+CORS_ALLOW_CREDENTIALS = True  
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://34.60.49.219:8000",
-    "http://34.57.126.1:8000"
-]
+# API Settings
+API_BASE_URL = 'http://34.16.64.68:8000/api'
+
+CORS_ALLOW_ALL_ORIGINS = True 
+
+# Rest Framework Settings
+REST_FRAMEWORK = {
+'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+],
+}
 
 
 ROOT_URLCONF = 'RAG_SaaS.urls'
