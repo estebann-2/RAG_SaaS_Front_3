@@ -7,12 +7,20 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Document, Message, Conversation
 from .forms import DocumentUploadForm, MessageForm
-import os
-from .utils import process_document, query_llm
-from .retriever import retrieve_relevant_chunks
+import requests
+from django.conf import settings
 import logging
+import json
 
+# Configuration
+API_BASE_URL = 'http://34.16.64.68:8000/api'
+API_TOKEN = "539fb7f7fbec80f930c23667552635637e6ea0ac"
 
+def get_headers(request):
+    """Helper function to get authentication headers"""
+    return {
+        'Authorization': f'Token {API_TOKEN}'
+    }
 
 # User Login
 def login_view(request):
@@ -39,63 +47,65 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    conversations = Conversation.objects.filter(user=request.user).order_by("-created_at")  # Show newest first
+    try:
+        response = requests.get(
+            f'{API_BASE_URL}/api_conversation/history',
+            params={'user': request.user.id},
+            headers=get_headers(request)
+        )
+        
+        if response.status_code == 200:
+            conversations = response.json()
+        else:
+            conversations = []
+            messages.error(request, "No se pudieron cargar las conversaciones.")
+            
+    except requests.RequestException:
+        conversations = []
+        messages.error(request, "Error al conectar con el servidor.")
+    
     return render(request, 'rag_app/base.html', {'conversations': conversations})
 
-
 @login_required
 def start_conversation(request):
-    if request.method == "POST":
-        title = request.POST.get("title", "Nueva Conversación")
-        conversation = Conversation.objects.create(user=request.user, title=title)
-        return redirect("conversation_detail", conversation_id=conversation.id)
-
     return render(request, "rag_app/start_conversation.html")
 
-@login_required
-def start_conversation(request):
-    if request.method == "POST":
-        title = request.POST.get("title", "Nueva Conversación")
-        conversation = Conversation.objects.create(user=request.user, title=title)
-        return redirect("conversation_detail", conversation_id=conversation.id)
-
-    return render(request, "rag_app/start_conversation.html")
-
-
-# View a Specific Conversation & Messages
 @login_required
 def conversation_detail(request, conversation_id):
-    conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
-    messages = conversation.messages.select_related("sender").order_by("timestamp")  # Optimized query
-    form = MessageForm()
-
-    return render(request, "rag_app/conversation_detail.html", {
-        "conversation": conversation,
-        "messages": messages,
-        "form": form
-    })
-
-
-import requests
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-
-# Configuration
-API_BASE_URL = 'http://34.16.64.68:8000/api'
-
-def get_headers(request):
-    """Helper function to get authentication headers"""
-    return {
-        'Authorization': f'Token {request.user.auth_token.key}'
-    }
+    try:
+        # Fetch conversation details from API
+        response = requests.get(
+            f'{API_BASE_URL}/api_conversation/{conversation_id}/',
+            params={'user': request.user.id},
+            headers=get_headers(request)
+        )
+        
+        if response.status_code == 404:
+            messages.error(request, "La conversación no existe o no tienes permiso para acceder a ella.")
+            return redirect('home')
+            
+        if response.status_code != 200:
+            messages.error(request, "Error al cargar la conversación.")
+            return redirect('home')
+            
+        conversation_data = response.json()
+        form = MessageForm()
+        
+        return render(request, "rag_app/conversation_detail.html", {
+            "conversation": conversation_data,
+            "messages": conversation_data.get('messages', []),
+            "form": form
+        })
+        
+    except requests.RequestException as e:
+        messages.error(request, "Error al conectar con el servidor.")
+        return redirect('home')
 
 @login_required
 def upload_document(request):
     if request.method == "POST" and request.FILES.get("document"):
         uploaded_file = request.FILES["document"]
         
-        # Prepare the request
         files = {'document': uploaded_file}
         data = {'user': request.user.id}
         
@@ -108,13 +118,21 @@ def upload_document(request):
             )
             
             if response.status_code == 201:
-                return JsonResponse(response.json())
-            return JsonResponse({'error': 'Upload failed'}, status=response.status_code)
+                response_data = response.json()
+                return JsonResponse({
+                    'success': True,
+                    'conversation_id': response_data['conversation_id']
+                })
+                
+            return JsonResponse(
+                {'error': 'Error al subir el documento'}, 
+                status=response.status_code
+            )
             
         except requests.RequestException as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-    return JsonResponse({"error": "No file provided"}, status=400)
+    return JsonResponse({"error": "No se proporcionó ningún archivo"}, status=400)
 
 @login_required
 def conversation_history(request):
@@ -131,11 +149,11 @@ def conversation_history(request):
                 'conversations': conversations
             })
         
-        messages.error(request, "Failed to fetch conversation history")
+        messages.error(request, "Error al cargar el historial de conversaciones")
         return redirect('home')
         
     except requests.RequestException as e:
-        messages.error(request, f"Error: {str(e)}")
+        messages.error(request, f"Error de conexión: {str(e)}")
         return redirect('home')
 
 @login_required
@@ -147,8 +165,8 @@ def send_message(request, conversation_id):
             
             payload = {
                 'message': message_text,
-                'user': str(request.user.id),
-                'conversation': str(conversation_id)
+                'user': request.user.id,
+                'conversation': conversation_id
             }
             
             try:
@@ -162,15 +180,20 @@ def send_message(request, conversation_id):
                 )
                 
                 if response.status_code == 200:
-                    data = response.json()
-                    return JsonResponse(data)
+                    return JsonResponse(response.json())
                 
-                return JsonResponse(
-                    {'error': 'Failed to send message'}, 
-                    status=response.status_code
-                )
+                error_message = 'Error al enviar el mensaje'
+                if response.status_code == 404:
+                    error_message = 'Conversación no encontrada'
+                elif response.status_code == 400:
+                    error_message = response.json().get('error', error_message)
+                    
+                return JsonResponse({'error': error_message}, status=response.status_code)
                 
             except requests.RequestException as e:
-                return JsonResponse({'error': str(e)}, status=500)
+                return JsonResponse(
+                    {'error': 'Error de conexión al enviar el mensaje'}, 
+                    status=500
+                )
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    return JsonResponse({'error': 'Petición inválida'}, status=400)
