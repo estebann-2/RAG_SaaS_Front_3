@@ -1,0 +1,50 @@
+{% extends "rag_app/base.html" %}
+
+{% block content %}
+    <div class="chat-container">
+        
+        <aside class="sidebar">
+            <h2>💬 Conversaciones</h2>
+            <a href="{% url 'start_conversation' %}" class="new-conversation-button">➕ Nueva Conversación</a>
+            <ul class="conversation-list">
+                {% for conv in conversations %}
+                    <li><a href="{% url 'conversation_detail' conv.id %}" class="conversation-link">📜 {{ conv.title }}</a></li>
+                {% empty %}
+                    <li class="empty-message">No hay conversaciones previas.</li>
+                {% endfor %}
+            </ul>
+            {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">🚪 Cerrar sesión</button>
+                </form>
+            {% endif %}
+        </aside>
+
+        <main class="chat-content">
+            <header class="chat-header">
+                <h2>💬 {{ conversation.title }}</h2>
+            </header>
+
+            <div class="chat-box" id="chat-box">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                        <p>{{ message.text }}</p>
+                    </div>
+                {% empty %}
+                    <p class="empty-chat">No hay mensajes en esta conversación.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Message Input -->
+            <footer class="message-input">
+                <form method="post" action="{% url 'send_message' conversation.id %}">
+                    {% csrf_token %}
+                    <input type="text" name="message" placeholder="Escribe un mensaje..." required>
+                    <button type="submit">📩 Enviar</button>
+                </form>
+            </footer>
+        </main>
+
+    </div>
+{% endblock %}

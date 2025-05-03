@@ -1,0 +1,25 @@
+{% extends "rag_app/base.html" %}
+
+{% block content %}
+    <!-- Title Box (Not Centered) -->
+    <div class="title-box" style="text-align: left;">
+        <h2 class="page-title">💬 Historial de Conversaciones</h2>
+    </div>
+
+    <div class="conversation-list-container">
+        {% if conversations %}
+            <ul class="conversation-list">
+                {% for conversation in conversations %}
+                    <li class="conversation-item">
+                        <span class="conversation-title">📜 {{ conversation.title }}</span>
+                        <span class="conversation-status">
+                            <a href="{% url 'conversation_detail' conversation.id %}" class="chat-button">💬 Continuar Chat</a>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-conversations">No hay conversaciones previas.</p>
+        {% endif %}
+    </div>
+{% endblock %}

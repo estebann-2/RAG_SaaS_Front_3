@@ -1,0 +1,981 @@
+/* Container for the entire login page */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+/* Image container */
+.image-container {
+    margin-bottom: 20px;
+}
+
+/* Image styling */
+.login-logo {
+    max-width: 100px;
+    height: auto;
+}
+
+/* Box containing the form */
+.login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+    margin-bottom: 20px; /* Adds space below the login box */
+}
+
+/* Form and input styles */
+.login-form {
+    width: 100%;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+    width: 100%;
+}
+
+/* Adjust input label and input fields */
+.input-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+textarea {
+    width: 100%; /* Hace que el área de texto ocupe el 100% del ancho disponible */
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #000000;
+    resize: vertical; /* Permite que el usuario cambie el tamaño verticalmente */
+    min-height: 100px; /* Define un tamaño mínimo para el área de texto */
+    max-height: 300px; /* Define un tamaño máximo para evitar desbordamiento */
+}
+
+/* Button styles */
+.login-button {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.login-button:hover {
+    background-color: #333333;
+}
+
+/* Forgot password link */
+.login-links {
+    margin-top: 15px;
+}
+
+.forgot-password {
+    font-size: 12px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+
+/* General container styling */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Top Box: Welcome and Search */
+.top-box {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Adds space below the top box */
+}
+
+/* Form History Button */
+.history-button {
+    display: flex;
+    align-items: center;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.history-button img {
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+}
+
+/* Search Box Container */
+/* New style for the search box container */
+.search-box-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f4f4f4;
+}
+
+.search-box form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px; /* Add spacing between input and buttons */
+}
+
+.search-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Wrap buttons in a flex container for better mobile alignment */
+.search-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.search-button, .clear-button {
+    padding: 10px 20px;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-grow: 1; /* Allow buttons to expand and fill available space */
+    text-align: center;
+    display: inline-block;
+}
+
+.clear-button {
+    background-color: #000000; /* Red color for the clear button */
+}
+
+@media (max-width: 600px) {
+    .search-buttons {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+    }
+}
+
+
+
+
+.logout-button {
+    padding: 10px 20px;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #333333;
+}
+
+
+/* Styling for the Back Button (Atrás a formularios) */
+.back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #000000; /* Red color similar to Salir button */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 20px; /* Space from the top */
+}
+
+.back-button:hover {
+    background-color: #000000; /* Darker red for hover effect */
+}
+
+/* Styling for the Submit Button */
+.submit-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #000000; /* Blue color */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%; /* Full width of the form */
+    margin-top: 20px; /* Add some space on top */
+}
+
+/* Submit Button Hover Effect */
+.submit-button:hover {
+    background-color: #000000; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+/* Submit Button Active Effect */
+.submit-button:active {
+    background-color: #000000; /* Even darker blue on click */
+    transform: translateY(0); /* Reset lift effect when clicked */
+}
+
+
+/* Add space between form fields */
+.form-group {
+    margin-bottom: 20px; /* Adjust the value to add more or less space */
+}
+
+
+.spacer {
+    margin-top: 30px; /* Adjust the spacing as needed */
+}
+
+
+/* Scrollable container for the form lists */
+.scrollable {
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-bottom: 20px;
+    padding-right: 10px;
+}
+
+/* Top Back Button */
+.top-back-button {
+    margin-bottom: 20px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #000000;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #000000;
+}
+
+/* Scrollable container for the forms list */
+.form-scroll-container {
+    max-height: 400px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Form box styling */
+.form-box {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    width: 250px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.form-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-link {
+    text-decoration: none;
+    color: #007BFF;
+    display: block;
+}
+
+.form-link h4 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.form-link p {
+    margin: 5px 0;
+    color: #666;
+}
+
+
+.preview-img {
+    max-width: 80px;  /* Limit the width */
+    max-height: 80px; /* Limit the height */
+    display: block;    /* Ensure the image is block-level */
+    margin-top: 10px;  /* Add space between the button and image */
+    object-fit: cover; /* Maintain aspect ratio and fill the box */
+}
+
+
+/* General Layout */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Header Section */
+.top-box {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+}
+
+/* Authentication Section */
+.auth-section {
+    margin-top: 10px;
+}
+
+/* Logout Button */
+.logout-button {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.action-button {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #333333;
+}
+
+/* General Layout */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Top Box (Title, Welcome Message & Buttons) */
+.top-box {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center everything */
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 10px;
+}
+
+/* Welcome Message */
+.welcome-message {
+    font-size: 18px;
+    color: #333333;
+    font-weight: bold;
+    margin-bottom: 15px; /* Creates space before buttons */
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.action-button {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #333333;
+}
+
+/* Bottom Logout Box */
+.bottom-box {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.logout-button {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+
+
+
+.page-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #000000;
+    margin: 0;
+}
+
+/* Document List Container */
+.document-list-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+/* Document List */
+.document-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.document-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.document-title {
+    font-weight: bold;
+    color: #000000;
+}
+
+.document-status {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.document-status:contains("Procesado") {
+    color: green;
+}
+
+.document-status:contains("En proceso...") {
+    color: orange;
+}
+
+/* No Documents Message */
+.no-documents {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+}
+
+
+/* Upload Page */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 30px;
+}
+
+
+
+/* Title Box - Above the Form */
+.title-box {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Form Box - Centered */
+.form-box {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Input Group Styling */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+    width: 100%;
+}
+
+/* Upload Button */
+.upload-button {
+    background-color: #000000;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.upload-button:hover {
+    background-color: #333333;
+}
+
+/* Responsive Centering */
+@media (max-width: 600px) {
+    .form-box {
+        width: 90%;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Chat Container */
+.chat-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar (Conversations & Logout) */
+.sidebar {
+    width: 25%;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Sidebar Title */
+.sidebar h2 {
+    text-align: center;
+}
+
+/* New Conversation Button */
+.new-conversation-button {
+    display: block;
+    text-align: center;
+    background-color: #ffd60a;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin: 15px 0;
+}
+
+.new-conversation-button:hover {
+    background-color: #2980b9;
+}
+
+/* Conversation List */
+.conversation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.conversation-list li {
+    margin: 10px 0;
+}
+
+.conversation-link {
+    display: block;
+    background-color: #34495e;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.conversation-link:hover {
+    background-color: #1abc9c;
+}
+
+/* Empty Conversations Message */
+.empty-message {
+    text-align: center;
+    font-style: italic;
+}
+
+/* Logout Button */
+.logout-form {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.logout-button {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+}
+
+/* Main Chat Content */
+.chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: white;
+    padding: 20px;
+}
+
+/* Chat Header */
+.chat-header {
+    text-align: center;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Chat Box (Messages) */
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* Messages */
+.message {
+    max-width: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+/* Sent Messages */
+.sent {
+    background-color: #3498db;
+    color: white;
+    align-self: flex-end;
+}
+
+/* Received Messages */
+.received {
+    background-color: #ecf0f1;
+    color: black;
+    align-self: flex-start;
+}
+
+/* Timestamp */
+.timestamp {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-left: 10px;
+}
+
+/* Message Input */
+.message-input {
+    display: flex;
+    margin-top: 10px;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.message-input button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.message-input button:hover {
+    background-color: #27ae60;
+}
+
+
+
+
+/* Sidebar styling */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh; /* Full height */
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-right: 1px solid #ddd;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+/* Scrollable conversation list */
+.conversation-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px); /* Adjust based on header and footer */
+    padding-right: 5px;
+}
+
+/* Ensure scrollbar is always visible */
+.conversation-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.conversation-list-container::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 3px;
+}
+
+.conversation-list-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Logout button stays at the bottom */
+.logout-form {
+    position: absolute;
+    padding: 20px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    text-align: center;
+}
+
+.logout-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.logout-button:hover {
+    background-color: #c9302c;
+}
+
+/* ✅ Fix overlapping issue: Adjust main content */
+.chat-content {
+    margin-left: 270px; /* Make space for the sidebar */
+    width: calc(100% - 270px);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
+
+
+
+
+
+
+
+/* Message Input & Upload Form Styling */
+.message-input {
+    width: 100%;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+}
+
+/* Input and Button Container */
+.input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    gap: 10px;
+}
+
+/* Larger Input Box */
+#message-input, #document {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 100%;  /* Ensures it takes full available width */
+}
+
+/* Button Styling */
+button {
+    padding: 12px 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+button:hover {
+    background-color: #0056b3;
+}

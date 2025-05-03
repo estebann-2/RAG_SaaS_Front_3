@@ -1,0 +1,36 @@
+{% extends "rag_app/base.html" %}
+
+{% block content %}
+<div class="upload-container">
+    
+    <!-- Upload Section Title (Not Centered) -->
+    <div class="title-box" style="text-align: left;">
+        <h2>📤 Nueva Conversación</h2>
+    </div>
+
+    <!-- Centered Form Box -->
+    <div class="form-box">
+        <form method="post" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+
+            <!-- File Upload Field -->
+            <div class="input-group">
+                <label for="id_file" class="input-label">📎 Selecciona un archivo:</label>
+                <input type="file" name="file" required id="id_file" accept=".pdf,.txt,.docx,.md">
+            </div>
+
+            <!-- Title Input -->
+            <div class="input-group">
+                <label for="id_title" class="input-label">📄 Nombre del Documento:</label>
+                <input type="text" name="title" maxlength="255" required id="id_title">
+            </div>
+
+            <!-- Upload & Cancel Buttons -->
+            <div class="button-group">
+                <button type="submit" class="upload-button">📤 Subir Documento</button>
+                <a href="{% url 'home' %}" class="cancel-button">❌ Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

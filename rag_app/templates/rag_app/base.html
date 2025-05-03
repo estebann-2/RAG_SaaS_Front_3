@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG SaaS - Chat</title>
+    <link rel="stylesheet" href="{% static 'rag_app/css/styles_v1.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'rag_app/favicon/favicon.ico' %}">
+</head>
+<body>
+
+    <div class="chat-container">
+        
+        <!-- Sidebar: Conversation History + New Conversation -->
+        <aside class="sidebar">
+            <h2>Conversaciones</h2>
+            
+            <!-- New Conversation Button -->
+            <a href="{% url 'start_conversation' %}" class="new-conversation-button">➕ Nueva Conversación</a>
+        
+            <!-- Conversation List with Scrollable Section -->
+            <div class="conversation-list-container">
+                <ul class="conversation-list">
+                    {% for conversation in conversations %}
+                        {% if conversation.id %}
+                            <li>
+                                <a href="{% url 'conversation_detail' conversation.id %}" class="conversation-link">
+                                    📜 {{ conversation.title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% empty %}
+                        <li class="empty-message">No hay conversaciones previas.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Logout Button Always Visible -->
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">🚪 Cerrar sesión</button>
+            </form>
+        {% endif %}
+        </aside>
+
+        <!-- ✅ Check if a conversation is selected -->
+        <main class="chat-content">
+            
+            <!-- Greeting at the top -->
+            <header class="chat-header">
+                {% if user.is_authenticated %}
+                    <h2>👋 Bienvenido, <strong>{{ user.username }}</strong></h2>
+                {% else %}
+                    <h2>👋 Bienvenido a RAG SaaS</h2>
+                {% endif %}
+            </header>
+
+            {% if conversation %}
+                <!-- ✅ If a conversation exists, show chat messages -->
+                <section class="chat-box" id="chat-box">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                            <p>{{ message.text }}</p>
+                            <span class="timestamp">{{ message.timestamp|date:"h:i A" }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="empty-chat">No hay mensajes en esta conversación.</p>
+                    {% endfor %}
+                </section>
+
+                <!-- ✅ Message Input -->
+            <footer class="message-input">
+                <form id="message-form" method="post" action="{% url 'send_message' conversation.id %}">
+                    {% csrf_token %}
+                    <div class="input-container">
+                        <input type="text" id="message-input" name="text" placeholder="Escribe un mensaje..." required>
+                        <button type="submit">📩 Enviar</button>
+                    </div>
+                </form>
+            </footer>
+
+            {% else %}
+            <!-- ✅ If no conversation exists, show file upload option -->
+            <div class="chat-box">
+                <p class="empty-chat">📂 Sube un documento para comenzar.</p>
+            </div>
+
+            <footer class="message-input">
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="input-container">
+                        <input type="file" name="document" id="document" required>
+                        <button type="submit">📤 Subir</button>
+                    </div>
+                </form>
+                <div id="upload-status" style="display: none; margin-top: 10px;">
+                    ⏳ Subiendo archivo...
+                </div>
+            </footer>
+            {% endif %}
+
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("✅ base.html loaded!");
+
+            const uploadForm = document.getElementById("upload-form");
+            const uploadStatus = document.getElementById("upload-status");
+
+            if (uploadForm) {
+                uploadForm.addEventListener("submit", function(event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    let formData = new FormData(uploadForm);
+
+                    // Show upload status message
+                    uploadStatus.style.display = "block";
+                    uploadStatus.innerHTML = "⏳ Subiendo archivo...";
+
+                    fetch("{% url 'upload_document' %}", {
+                        method: "POST",
+                        body: formData,
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            uploadStatus.innerHTML = "✅ Documento subido con éxito. Redirigiendo...";
+                            setTimeout(() => {
+                                window.location.href = `/conversation/${data.conversation_id}/`;
+                            }, 1000);
+                        } else {
+                            uploadStatus.innerHTML = "❌ Error al subir archivo: " + data.error;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error uploading file:", error);
+                        uploadStatus.innerHTML = "❌ Error inesperado.";
+                    });
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

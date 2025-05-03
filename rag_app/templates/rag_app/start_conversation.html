@@ -1,0 +1,92 @@
+{% extends "rag_app/base.html" %}
+
+{% block content %}
+    <div class="chat-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>💬 Conversaciones</h2>
+            <a href="{% url 'start_conversation' %}" class="new-conversation-button">➕ Nueva Conversación</a>
+            <ul class="conversation-list">
+                {% for conversation in conversations %}
+                    <li><a href="{% url 'conversation_detail' conversation.id %}" class="conversation-link">📜 {{ conversation.title }}</a></li>
+                {% empty %}
+                    <li class="empty-message">No hay conversaciones previas.</li>
+                {% endfor %}
+            </ul>
+            {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">🚪 Cerrar sesión</button>
+                </form>
+            {% endif %}
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-content">
+            <header class="chat-header">
+                <h2>👋 Nueva Conversación</h2>
+            </header>
+
+            <!-- Chat Box -->
+            <div class="chat-box" id="chat-box">
+                <p class="empty-chat">📂 Sube un documento para comenzar.</p>
+            </div>
+
+            <!-- Upload Form -->
+            <footer class="message-input">
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label for="document">📂 Subir documento:</label>
+                    <input type="file" name="document" id="document" required>
+                    <button type="submit">📤 Subir</button>
+                </form>
+                <div id="upload-status" style="display: none; margin-top: 10px;">
+                    ⏳ Subiendo archivo...
+                </div>
+            </footer>
+        </main>
+
+    </div>
+
+    <!-- ✅ AJAX for File Upload -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("✅ start_conversation.html loaded!");
+
+            const uploadForm = document.getElementById("upload-form");
+            const uploadStatus = document.getElementById("upload-status");
+
+            uploadForm.addEventListener("submit", function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let formData = new FormData(uploadForm);
+
+                // Show upload status message
+                uploadStatus.style.display = "block";
+                uploadStatus.innerHTML = "⏳ Subiendo archivo...";
+
+                fetch("{% url 'upload_document' %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        uploadStatus.innerHTML = "✅ Documento subido con éxito. Redirigiendo...";
+                        setTimeout(() => {
+                            window.location.href = `/conversation/${data.conversation_id}/`;
+                        }, 1000);
+                    } else {
+                        uploadStatus.innerHTML = "❌ Error al subir archivo: " + data.error;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error uploading file:", error);
+                    uploadStatus.innerHTML = "❌ Error inesperado.";
+                });
+            });
+        });
+    </script>
+{% endblock %}

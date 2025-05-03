@@ -1,0 +1,9 @@
+{% extends 'rag_app/base.html' %}
+{% block content %}
+    <h2>Query Document: {{ document.title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Query</button>
+    </form>
+{% endblock %}
