@@ -2,7 +2,6 @@
 
 {% block content %}
     <div class="chat-container">
-        
         <!-- Sidebar -->
         <aside class="sidebar">
             <h2>💬 Conversaciones</h2>
@@ -30,65 +29,71 @@
 
             <!-- Chat Box -->
             <div class="chat-box" id="chat-box">
-                <p class="empty-chat">📂 Sube un documento para comenzar.</p>
+                <div class="empty-chat">
+                    <h3>🎉 ¡Nueva conversación creada!</h3>
+                    <p>📂 Sube un documento para comenzar a chatear.</p>
+                </div>
             </div>
 
             <!-- Upload Form -->
             <footer class="message-input">
                 <form id="upload-form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <label for="document">📂 Subir documento:</label>
-                    <input type="file" name="document" id="document" required>
-                    <button type="submit">📤 Subir</button>
+                    <div class="input-container">
+                        <input type="file" name="document" id="document" accept=".pdf,.txt,.docx,.md" required>
+                        <button type="submit">📤 Subir documento</button>
+                    </div>
                 </form>
                 <div id="upload-status" style="display: none; margin-top: 10px;">
                     ⏳ Subiendo archivo...
                 </div>
             </footer>
         </main>
-
     </div>
 
-    <!-- ✅ AJAX for File Upload -->
+    <!-- File Upload Handler -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("✅ start_conversation.html loaded!");
-
             const uploadForm = document.getElementById("upload-form");
             const uploadStatus = document.getElementById("upload-status");
 
-            uploadForm.addEventListener("submit", function(event) {
-                event.preventDefault();
+            if (uploadForm) {
+                uploadForm.addEventListener("submit", async function(event) {
+                    event.preventDefault();
+                    
+                    const formData = new FormData(uploadForm);
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
+                    uploadStatus.style.display = "block";
+                    uploadStatus.innerHTML = "⏳ Subiendo archivo...";
 
-                let formData = new FormData(uploadForm);
+                    try {
+                        const response = await fetch("{% url 'upload_document' %}", {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': csrfToken
+                            }
+                        });
 
-                uploadStatus.style.display = "block";
-                uploadStatus.innerHTML = "⏳ Subiendo archivo...";
-
-                fetch("{% url 'upload_document' %}", {
-                    method: "POST",
-                    body: formData,
-                    headers: { 
-                        "X-Requested-With": "XMLHttpRequest",
-                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                        const data = await response.json();
+                        
+                        if (data.success && data.conversation_id) {
+                            // Show the API response message
+                            uploadStatus.innerHTML = `✅ ${data.response}`;
+                            setTimeout(() => {
+                                window.location.href = `/conversation/${data.conversation_id}/`;
+                            }, 2000); // Give user time to read the message
+                        } else {
+                            uploadStatus.innerHTML = "❌ Error: " + (data.error || "Error desconocido");
+                            console.error("Upload error:", data.error);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        uploadStatus.innerHTML = "❌ Error de conexión";
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.conversation_id) {
-                        uploadStatus.innerHTML = "✅ Documento subido con éxito. Redirigiendo...";
-                        setTimeout(() => {
-                            window.location.href = `/conversation/${data.conversation_id}/`;
-                        }, 1000);
-                    } else {
-                        uploadStatus.innerHTML = "❌ Error al subir archivo: " + (data.error || "Error desconocido");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error uploading file:", error);
-                    uploadStatus.innerHTML = "❌ Error inesperado al subir el archivo.";
                 });
-            });
+            }
         });
     </script>
 {% endblock %}

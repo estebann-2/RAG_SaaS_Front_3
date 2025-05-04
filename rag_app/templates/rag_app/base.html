@@ -91,7 +91,7 @@
                 <form id="upload-form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="input-container">
-                        <input type="file" name="document" id="document" required>
+                        <input type="file" name="document" id="document" required accept=".pdf,.txt,.docx,.md">
                         <button type="submit">📤 Subir</button>
                     </div>
                 </form>
@@ -130,10 +130,11 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            uploadStatus.innerHTML = "✅ Documento subido con éxito. Redirigiendo...";
+                            // Show the API response message
+                            uploadStatus.innerHTML = `✅ ${data.response}`;
                             setTimeout(() => {
                                 window.location.href = `/conversation/${data.conversation_id}/`;
-                            }, 1000);
+                            }, 2000); // Give user time to read the message
                         } else {
                             uploadStatus.innerHTML = "❌ Error al subir archivo: " + data.error;
                         }

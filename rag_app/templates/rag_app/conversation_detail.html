@@ -36,15 +36,96 @@
                 {% endfor %}
             </div>
 
-            <!-- Message Input -->
             <footer class="message-input">
-                <form method="post" action="{% url 'send_message' conversation.id %}">
+                <form id="message-form" method="post" data-conversation-id="{{ conversation.id }}">
                     {% csrf_token %}
-                    <input type="text" name="message" placeholder="Escribe un mensaje..." required>
-                    <button type="submit">📩 Enviar</button>
+                    <div class="input-container">
+                        <input type="text" name="text" id="message-input" placeholder="Escribe un mensaje..." required>
+                        <button type="submit" id="send-button">📩 Enviar</button>
+                    </div>
                 </form>
             </footer>
         </main>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageForm = document.getElementById('message-form');
+            const chatBox = document.getElementById('chat-box');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const conversationId = messageForm.dataset.conversationId;
+
+            messageForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Disable input and button while sending
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+
+                const formData = new FormData(messageForm);
+                const messageText = formData.get('text');
+
+                // Add user message to chat immediately
+                addMessageToChat(messageText, 'sent');
+                
+                try {
+                    const response = await fetch(`/conversation/${conversationId}/send/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            text: messageText
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Add assistant's response to chat
+                        if (data.assistant_response) {
+                            addMessageToChat(data.assistant_response, 'received');
+                        }
+                    } else {
+                        console.error('Error:', data.error);
+                        addMessageToChat('Error: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessageToChat('Error al enviar el mensaje', 'error');
+                } finally {
+                    // Re-enable input and button
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+                    messageInput.focus();
+                }
+
+                // Clear input field and scroll to bottom
+                messageForm.reset();
+                scrollToBottom();
+            });
+
+            function addMessageToChat(text, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                messageDiv.innerHTML = `<p>${text}</p>`;
+                chatBox.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            function scrollToBottom() {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            // Initial scroll to bottom
+            scrollToBottom();
+
+            // Focus input on page load
+            messageInput.focus();
+        });
+    </script>
 {% endblock %}
